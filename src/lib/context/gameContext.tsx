@@ -145,6 +145,7 @@ export function GameContextProvider({ children }: { children: React.ReactNode })
         socket.on('set-round', (combination) => {
             setRoundCards([...combination]);
             resetSolution();
+            setSolutionCards([...combination]);
         });
     }, [socket]);
 
