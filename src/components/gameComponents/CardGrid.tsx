@@ -9,14 +9,15 @@ interface CardGridProps {
 export default function CardGrid({ cards }: CardGridProps) {
     const { insertCardToStep, activeCards } = useGameContext();
 
-    console.log(activeCards);
-
     return (
-        <div className='w-full grid grid-cols-2 grid-rows-2 gap-3'>
+        <div
+            className='w-full h-auto grid grid-cols-2 grid-rows-2 gap-3'
+            data-tut='card-grid'>
             {cards?.map((cardValue, index) => {
                 return (
                     <Card
                         key={index}
+                        index={index}
                         value={cardValue}
                         active={activeCards[index]}
                         onclick={() => {

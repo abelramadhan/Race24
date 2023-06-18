@@ -45,7 +45,7 @@ export default function Lobby() {
                 </div>
             </CardHeader>
             <CardBody className='p-6'>
-                <span className='font-semibold text-md'>Players</span>
+                <span className='font-semibold text-md'>Pemain</span>
                 <ul className='flex flex-row flex-wrap gap-2 mt-2'>
                     {roomObject?.userList.map((user, index) => {
                         return (
@@ -72,14 +72,14 @@ export default function Lobby() {
                         onClick={startGame}
                         fullWidth={true}
                         color='light-blue'>
-                        Start Game!
+                        Mulai Bermain!
                     </Button>
                 ) : (
                     <Button
                         fullWidth={true}
                         disabled
                         color='gray'>
-                        Waiting for Host
+                        Menunggu Pemilik Room
                     </Button>
                 )}
             </CardFooter>

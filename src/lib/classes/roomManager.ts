@@ -1,31 +1,26 @@
 import { Server, Socket } from 'socket.io';
 import { socketUserData } from '../context/types/socketTypes';
+import { CardRepo } from './cardsRepo';
+import { CardSet } from '../context/types/gameTypes';
+
+const cardsRepo = new CardRepo();
 
 export interface RoomObject {
     roomID: string;
-    round: number;
     userList: Array<socketUserData>;
 }
 
 class Room {
     private roomID: string;
-    private round: number;
+    private cards: CardSet[];
 
     constructor(roomID: string) {
         this.roomID = roomID;
-        this.round = 0;
+        this.cards = cardsRepo.draw();
     }
 
     getRoomID = () => {
         return this.roomID;
-    };
-
-    nextRound = () => {
-        if (this.round < 10) {
-            this.round += 1;
-        } else {
-            this.round = 0;
-        }
     };
 
     get = async (io: Server): Promise<RoomObject> => {
@@ -36,17 +31,17 @@ class Room {
             });
             return {
                 roomID: this.roomID,
-                round: this.round,
-                userList: users,
+                userList: users.sort((a, b) => b.round - a.round),
             };
         } catch (error) {
             return {
                 roomID: 'notFound',
-                round: 0,
                 userList: [],
             };
         }
     };
+
+    getCards = () => this.cards;
 }
 
 class RoomManager {
@@ -72,9 +67,10 @@ class RoomManager {
         return await room?.get(this.io);
     };
 
-    incrementRoomRound = (roomID: string) => {
-        const room = this.findRoom(roomID);
-        room?.nextRound();
+    getCards = (roomID: string) => {
+        const room = this.roomList.find((room) => room.getRoomID() === roomID);
+        if (!room) return [];
+        return room?.getCards();
     };
 }
 

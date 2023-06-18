@@ -9,8 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.24.1",
     "@heroicons/react": "^2.0.17",
-    "@material-tailwind/react": "^1.4.2",
+    "@material-tailwind/react": "^2.0.1",
     "@types/node": "18.15.11",
     "@types/react": "18.0.33",
     "@types/react-dom": "18.0.11",
@@ -21,11 +22,14 @@
     "next": "13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-timer-hook": "^3.0.5",
+    "reactour": "^1.19.0",
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
     "typescript": "5.0.3"
   },
   "devDependencies": {
+    "@types/reactour": "^1.18.2",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.3.1"

@@ -1,4 +1,4 @@
-export type gameStates = 'home' | 'lobby' | 'game';
+export type gameStates = 'home' | 'lobby' | 'game' | 'leaderboard';
 
 export type Card = {
     value: number;
@@ -26,3 +26,8 @@ export type SolutionStep = {
 };
 
 export type Solution = SolutionStep[];
+
+export type Timer = {
+    minutes: number;
+    seconds: number;
+};

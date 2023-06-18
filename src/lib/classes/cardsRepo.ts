@@ -18,7 +18,18 @@ export class CardRepo {
         }
     }
 
-    draw = () => this.cards[getRandomNumber(this.cards.length - 1)];
+    draw = () => {
+        const roundCards = [];
+        let prevIndex = -1;
+        for (let i = 0; i < 10; i++) {
+            let newIndex;
+            do {
+                newIndex = getRandomNumber(this.cards.length - 1);
+            } while (newIndex === prevIndex);
+            roundCards.push(this.cards[newIndex]);
+        }
+        return roundCards;
+    };
 }
 
 function writeJSONFile(filename: string, data: any): void {
@@ -38,24 +49,22 @@ const readJSONFile = (filename: string): CardSet[] => {
 
 function generateCombinations(cards: number[], n: number): CardSet[] {
     const result: CardSet[] = [];
+    const combValues = [1, 1, 1, 1];
 
-    function backtrack(combination: number[], index: number): void {
-        if (combination.length === n) {
-            if (canSolve24(combination)) {
-                result.push([...combination]);
-            }
-            return;
+    while (combValues[0] <= 10) {
+        const combination = combValues.slice();
+        if (canSolve24(combination)) {
+            result.push(combination);
         }
+        combValues[3]++;
 
-        for (let i = index; i < cards.length; i++) {
-            combination.push(cards[i]);
-            backtrack(combination, i + 1);
-            combination.pop();
+        let i = 3;
+        while (i > 0 && combValues[i] > 10) {
+            combValues[i - 1]++;
+            combValues[i] = combValues[i - 1];
+            i--;
         }
     }
-
-    backtrack([], 0);
-
     return result;
 }
 
@@ -66,25 +75,28 @@ function canSolve24(nums: number[]): boolean {
         return Math.abs(nums[0] - 24) < EPSILON;
     }
 
+    const operations = ['+', '-', '*', '/'];
+
     for (let i = 0; i < nums.length; i++) {
         for (let j = 0; j < nums.length; j++) {
             if (i !== j) {
-                const remaining = nums.filter((_, index) => index !== i && index !== j);
+                for (const op of operations) {
+                    const remaining = nums.filter((_, index) => index !== i && index !== j);
 
-                if (canSolve24([...remaining, nums[i] + nums[j]])) {
-                    return true;
-                }
+                    let result;
+                    if (op === '+') {
+                        result = nums[i] + nums[j];
+                    } else if (op === '-') {
+                        result = nums[i] - nums[j];
+                    } else if (op === '*') {
+                        result = nums[i] * nums[j];
+                    } else if (op === '/' && nums[j] !== 0) {
+                        result = nums[i] / nums[j];
+                    }
 
-                if (canSolve24([...remaining, nums[i] - nums[j]])) {
-                    return true;
-                }
-
-                if (canSolve24([...remaining, nums[i] * nums[j]])) {
-                    return true;
-                }
-
-                if (nums[j] !== 0 && canSolve24([...remaining, nums[i] / nums[j]])) {
-                    return true;
+                    if (result !== undefined && canSolve24([...remaining, result])) {
+                        return true;
+                    }
                 }
             }
         }

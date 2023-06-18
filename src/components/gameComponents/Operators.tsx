@@ -22,7 +22,7 @@ function Operator({ value, onClick, active }: OperatorProps) {
     const { insertOperatorToStep } = useGameContext();
     return (
         <Button
-            color={active ? 'orange' : 'amber'}
+            color={active ? 'deep-orange' : 'amber'}
             onClick={() => {
                 insertOperatorToStep(value);
             }}
@@ -40,7 +40,9 @@ export default function OperatorGrid({}: OperatorGridProps) {
     const operators = useRef(operator);
     const { activeOperator } = useGameContext();
     return (
-        <div className='w-full grid grid-cols-4 gap-3'>
+        <div
+            className='w-full grid grid-cols-4 gap-3'
+            data-tut='operator-grid'>
             {operators.current.map((operator, index) => {
                 return (
                     <Operator
