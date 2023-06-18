@@ -50,7 +50,7 @@ export default function Home() {
                             variant='h2'
                             className='font-bold text-5xl'
                             color='blue-gray'>
-                            Make
+                            Race
                         </Typography>
                         <Typography
                             variant='h2'

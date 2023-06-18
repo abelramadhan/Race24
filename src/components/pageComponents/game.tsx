@@ -54,7 +54,7 @@ export default function Game() {
                         <Typography
                             className='font-bold text-xl'
                             color='blue-gray'>
-                            Make
+                            Race
                         </Typography>
                         <Typography
                             className='font-extrabold text-2xl'

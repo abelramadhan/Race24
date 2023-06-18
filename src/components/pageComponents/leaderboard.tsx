@@ -30,7 +30,7 @@ export default function LeaderBoard({ setGameState }: LeaderBoardProps) {
                     <Typography
                         className='font-bold text-xl'
                         color='blue-gray'>
-                        Make
+                        Race
                     </Typography>
                     <Typography
                         className='font-extrabold text-2xl'
