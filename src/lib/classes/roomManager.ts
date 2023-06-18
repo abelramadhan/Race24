@@ -23,6 +23,10 @@ class Room {
         return this.roomID;
     };
 
+    drawCards = () => {
+        this.cards = cardsRepo.draw();
+    };
+
     get = async (io: Server): Promise<RoomObject> => {
         try {
             const sockets = await io.in(this.roomID).fetchSockets();
@@ -71,6 +75,11 @@ class RoomManager {
         const room = this.roomList.find((room) => room.getRoomID() === roomID);
         if (!room) return [];
         return room?.getCards();
+    };
+
+    redrawCards = (roomID: string) => {
+        const room = this.findRoom(roomID);
+        room?.drawCards();
     };
 }
 

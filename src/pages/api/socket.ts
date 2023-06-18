@@ -86,6 +86,7 @@ const SocketHandler = (req: NextApiRequest, res: SocketServerResponse) => {
                 if (!roomID) return;
                 const users = await io.in(roomID).fetchSockets();
                 users.forEach((user) => (user.data.round = 1));
+                roomManager.redrawCards(roomID);
                 io.in(roomID).emit('set-game-state', 'game');
                 io.in(roomID).emit('set-cards', roomManager.getCards(roomID));
             });
