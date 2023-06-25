@@ -99,7 +99,7 @@ export default function Game() {
                             </button>
                             <button
                                 onClick={resetSolution}
-                                data-tut='skip-btn'
+                                data-tut='reset-btn'
                                 className='inline-flex items-center p-3 gap-1 text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg'>
                                 <span className='align-bottom leading-none relative top-0.5 text-sm hidden sm:block'>
                                     Reset
@@ -195,7 +195,7 @@ const tourSteps: ReactourStep[] = [
     },
     {
         selector: '[data-tut="reset-btn"]',
-        content: 'Klik tombol untuk me-reset solusi anda',
+        content: 'Klik tombol ini untuk me-reset solusi anda',
     },
     {
         selector: '[data-tut="skip-btn"]',

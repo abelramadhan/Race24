@@ -39,6 +39,12 @@ const SocketHandler = (req: NextApiRequest, res: SocketServerResponse) => {
             socket.data.roundScores = [false, false, false, false, false, false, false, false, false, false];
         };
 
+        const resetSocketGame = (socket: RemoteSocket<ServerToClientEvents, socketUserData>) => {
+            socket.data.round = 1;
+            socket.data.finishTime = null;
+            socket.data.roundScores = [false, false, false, false, false, false, false, false, false, false];
+        };
+
         const syncRoom = async (socket: Socket) => {
             const roomID = socket.data.roomID;
             const roomObject = await roomManager.getRoom(roomID);
@@ -85,7 +91,7 @@ const SocketHandler = (req: NextApiRequest, res: SocketServerResponse) => {
                 const roomID = socket.data.roomID;
                 if (!roomID) return;
                 const users = await io.in(roomID).fetchSockets();
-                users.forEach((user) => (user.data.round = 1));
+                users.forEach((user) => resetSocketGame(user));
                 roomManager.redrawCards(roomID);
                 io.in(roomID).emit('set-game-state', 'game');
                 io.in(roomID).emit('set-cards', roomManager.getCards(roomID));
@@ -95,7 +101,6 @@ const SocketHandler = (req: NextApiRequest, res: SocketServerResponse) => {
                 if (!roomID || !socket.data.roundScores || !socket.data.round) return;
                 socket.data.roundScores[socket.data.round - 1] = finish;
                 socket.data.round = socket.data.round + 1;
-
                 syncRoom(socket);
             });
             socket.on('set-finish', async (finishTime: Timer) => {

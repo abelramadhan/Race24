@@ -47,24 +47,36 @@ const readJSONFile = (filename: string): CardSet[] => {
     return jsonData;
 };
 
-function generateCombinations(cards: number[], n: number): CardSet[] {
-    const result: CardSet[] = [];
-    const combValues = [1, 1, 1, 1];
+function generateCombinations(cards: number[], n: number): number[][] {
+    const result: number[][] = [];
+    const combValues = Array(n).fill(0);
 
-    while (combValues[0] <= 10) {
-        const combination = combValues.slice();
+    while (combValues[0] <= cards.length) {
+        const combinationIndices = combValues.slice();
+        const combination = combinationIndices.map((index) => cards[index]);
+
         if (canSolve24(combination)) {
             result.push(combination);
         }
-        combValues[3]++;
 
-        let i = 3;
-        while (i > 0 && combValues[i] > 10) {
+        combValues[n - 1]++;
+
+        let i = n - 1;
+        while (i > 0 && combValues[i] >= cards.length) {
             combValues[i - 1]++;
             combValues[i] = combValues[i - 1];
             i--;
         }
     }
+
+    // Shuffle the cards within each combination
+    result.forEach((combination) => {
+        for (let i = combination.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [combination[i], combination[j]] = [combination[j], combination[i]];
+        }
+    });
+
     return result;
 }
 
