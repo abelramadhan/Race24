@@ -1,3 +1,6 @@
+## Accessible here [Race 24](http://103.175.217.47/3000)
+until 18 August 2023
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
