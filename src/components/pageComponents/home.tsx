@@ -19,7 +19,7 @@ export default function Home() {
     const [roomID, setRoomID] = useState('');
 
     const { socket } = useSocket();
-    const { setUsername } = useGameContext();
+    const { setUsername, startOffline } = useGameContext();
 
     const [isTourOpen, setIsTourOpen] = useState(false);
     useEffect(() => {
@@ -31,10 +31,14 @@ export default function Home() {
     }, []);
 
     const startGame = () => {
-        if (!username) return;
-        setUsername(username);
-        const newRoomID = mode === 'join' && roomID ? roomID : generateId(6);
-        socket?.emit('join-room', username, newRoomID);
+        if (socket?.connected) {
+            if (!username) return;
+            setUsername(username);
+            const newRoomID = mode === 'join' && roomID ? roomID : generateId(6);
+            socket?.emit('join-room', username, newRoomID);
+        } else {
+            startOffline();
+        }
     };
 
     return (
@@ -61,58 +65,67 @@ export default function Home() {
                     </div>
                 </CardHeader>
                 <CardBody className='p-0'>
-                    <div className='flex flex-row border-b border-gray-300'>
-                        <div
-                            data-tut='tab-create'
-                            onClick={() => {
-                                setMode('create');
-                            }}
-                            className={
-                                mode === 'create'
-                                    ? 'bg-light-blue-50 border-b border-light-blue-500 py-2 flex-1 text-center'
-                                    : 'bg-gray-50 py-2 flex-1 text-center hover:bg-light-blue-50'
-                            }>
-                            Room Baru
-                        </div>
-                        <div
-                            data-tut='tab-join'
-                            onClick={() => {
-                                setMode('join');
-                            }}
-                            className={
-                                mode === 'join'
-                                    ? 'bg-light-blue-50 border-b border-light-blue-500 py-2 flex-1 text-center'
-                                    : 'bg-gray-50 py-2 flex-1 text-center hover:bg-light-blue-50'
-                            }>
-                            Bergabung
-                        </div>
-                    </div>
-                    <div className='p-6 flex flex-col gap-3'>
-                        <div className='w-full'>
-                            <Input
-                                data-tut='input-username'
-                                label='Username'
-                                value={username}
-                                name='username'
-                                onChange={(e) => {
-                                    setUsernameInput(e.target.value);
-                                }}
-                            />
-                        </div>
-                        {mode === 'join' && (
-                            <div className='w-full'>
-                                <Input
-                                    data-tut='input-roomid'
-                                    label='Room ID'
-                                    name='roomID'
-                                    value={roomID}
-                                    onChange={(e) => {
-                                        setRoomID(e.target.value);
+                    {socket?.connected ? (
+                        <>
+                            <div className='flex flex-row border-b border-gray-300'>
+                                <div
+                                    data-tut='tab-create'
+                                    onClick={() => {
+                                        setMode('create');
                                     }}
-                                />
+                                    className={
+                                        mode === 'create'
+                                            ? 'bg-light-blue-50 border-b border-light-blue-500 py-2 flex-1 text-center'
+                                            : 'bg-gray-50 py-2 flex-1 text-center hover:bg-light-blue-50'
+                                    }>
+                                    Room Baru
+                                </div>
+                                <div
+                                    data-tut='tab-join'
+                                    onClick={() => {
+                                        setMode('join');
+                                    }}
+                                    className={
+                                        mode === 'join'
+                                            ? 'bg-light-blue-50 border-b border-light-blue-500 py-2 flex-1 text-center'
+                                            : 'bg-gray-50 py-2 flex-1 text-center hover:bg-light-blue-50'
+                                    }>
+                                    Bergabung
+                                </div>
                             </div>
-                        )}
-                    </div>
+                            <div className='p-6 flex flex-col gap-3'>
+                                <div className='w-full'>
+                                    <Input
+                                        data-tut='input-username'
+                                        label='Username'
+                                        value={username}
+                                        name='username'
+                                        onChange={(e) => {
+                                            setUsernameInput(e.target.value);
+                                        }}
+                                    />
+                                </div>
+                                {mode === 'join' && (
+                                    <div className='w-full'>
+                                        <Input
+                                            data-tut='input-roomid'
+                                            label='Room ID'
+                                            name='roomID'
+                                            value={roomID}
+                                            onChange={(e) => {
+                                                setRoomID(e.target.value);
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    ) : (
+                        <div className='text-center w-full py-4'>
+                            <Typography className='font-bold text-lg'>Oops!</Typography>
+                            <Typography>Multiplayer sedang tidak tersedia</Typography>
+                        </div>
+                    )}
                 </CardBody>
                 <CardFooter className='flex flex-col p-6 pt-0'>
                     <div className='border-t border-gray-300 mb-6'></div>
@@ -123,16 +136,18 @@ export default function Home() {
                         }}
                         fullWidth={true}
                         color='light-blue'>
-                        Mulai
+                        {socket?.connected ? 'Mulai' : 'Mulai Oflline'}
                     </Button>
-                    <Button
-                        className='mt-2'
-                        onClick={() => setIsTourOpen(true)}
-                        color='light-blue'
-                        size='sm'
-                        variant='text'>
-                        Bantuan
-                    </Button>
+                    {socket?.connected && (
+                        <Button
+                            className='mt-2'
+                            onClick={() => setIsTourOpen(true)}
+                            color='light-blue'
+                            size='sm'
+                            variant='text'>
+                            Bantuan
+                        </Button>
+                    )}
                 </CardFooter>
             </Card>
             <Tour

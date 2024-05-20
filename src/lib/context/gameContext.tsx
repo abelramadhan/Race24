@@ -1,12 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import io, { Socket } from 'socket.io-client';
-import { User } from './types/user';
-import { ClientToServerEvents, ServerToClientEvents } from './types/socketTypes';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { RoomObject } from '../classes/roomManager';
 import { useSocket } from './socketContext';
 import { CardIndex, CardSet, Operators, Solution, SolutionStep, Timer } from './types/gameTypes';
-import { boolean, evaluate } from 'mathjs';
+import { evaluate } from 'mathjs';
 import { useTimer } from 'react-timer-hook';
+import { useGameState } from './gameStateContext';
 
 interface GameContextProps {
     roomObject: RoomObject | null;
@@ -20,6 +18,7 @@ interface GameContextProps {
     isHost: () => boolean;
     resetSolution: () => void;
     skipRound: () => void;
+    startOffline: () => void;
     insertCardToStep: (index: CardIndex) => void;
     insertOperatorToStep: (operator: Operators) => void;
 }
@@ -38,6 +37,7 @@ const GameContext = createContext<GameContextProps>({
     skipRound: () => {},
     insertCardToStep: () => {},
     insertOperatorToStep: () => {},
+    startOffline: () => {},
 });
 
 export function useGameContext() {
@@ -54,6 +54,7 @@ const time = getTimerDuration(600);
 
 export function GameContextProvider({ children }: { children: React.ReactNode }) {
     const { socket } = useSocket();
+    const { gameState, setGameState } = useGameState();
     // room states
     const [roomObject, setRoomObject] = useState<RoomObject | null>(null);
     const [username, setUsername] = useState<string | null>(null);
@@ -72,7 +73,9 @@ export function GameContextProvider({ children }: { children: React.ReactNode })
         onExpire: () => {
             if (round < 11) {
                 setRound(11);
-                socket?.emit('set-finish', { minutes, seconds });
+                if (socket?.connected) {
+                    socket?.emit('set-finish', { minutes, seconds });
+                }
             }
         },
     });
@@ -101,6 +104,31 @@ export function GameContextProvider({ children }: { children: React.ReactNode })
         });
     }, [socket]);
 
+    const startOffline = async () => {
+        const cards = (await (await fetch('/api/getCards')).json()).cards as number[][];
+        setRoomObject({
+            roomID: 'offline',
+            userList: [
+                {
+                    username: 'Player',
+                    score: 0,
+                    roomID: 'offline',
+                    round: 0,
+                    finishTime: null,
+                    roundScores: [false, false, false, false, false, false, false, false, false, false],
+                },
+            ],
+        });
+        setRound(0);
+        setGameState('game');
+        setSolutionCards(null);
+        setGameCards(cards);
+        setTimeout(() => {
+            setRound(1);
+            start();
+        }, 1000);
+    };
+
     const isHost = () => {
         return roomObject?.userList[0].username === username ? true : false;
     };
@@ -125,12 +153,35 @@ export function GameContextProvider({ children }: { children: React.ReactNode })
     const nextRound = (finish: boolean) => {
         // if (round > 11) return;
 
-        setRound((prev) => {
-            const newRound = prev + 1;
+        setRound((curr) => {
+            const newRound = curr + 1;
 
-            socket?.emit('next-round', finish);
-            if (newRound > 10) {
-                socket?.emit('set-finish', { minutes, seconds });
+            if (socket?.connected) {
+                socket?.emit('next-round', finish);
+                if (newRound > 10) {
+                    socket?.emit('set-finish', { minutes, seconds });
+                }
+            } else {
+                setRoomObject((prev) => {
+                    if (!prev) return prev;
+                    prev.userList[0].round = newRound;
+                    prev.userList[0].roundScores[curr] = finish;
+                    return prev;
+                });
+                if (newRound > 10) {
+                    setRoomObject((prev) => {
+                        if (!prev) return prev;
+                        prev.userList[0].finishTime = { minutes, seconds } as Timer;
+                        const finishedRound = prev.userList[0].roundScores.reduce((partialSum: number, a: boolean) => {
+                            return a ? partialSum + 1 : partialSum;
+                        }, 0);
+                        const finishTime =
+                            prev.userList[0].finishTime!.minutes * 60 + prev.userList[0].finishTime!.minutes;
+                        prev.userList[0].score = Math.floor(((finishTime + 50) * finishedRound) / 6);
+                        return prev;
+                    });
+                    setGameState('leaderboard');
+                }
             }
 
             return newRound;
@@ -232,6 +283,7 @@ export function GameContextProvider({ children }: { children: React.ReactNode })
                 skipRound,
                 insertCardToStep,
                 insertOperatorToStep,
+                startOffline,
             }}>
             {children}
         </GameContext.Provider>

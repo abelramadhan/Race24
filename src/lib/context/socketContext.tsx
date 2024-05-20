@@ -23,8 +23,12 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        initSocketServer();
-        const newSocket = io();
+        // initSocketServer();
+
+        const newSocket = io({ reconnection: false });
+
+        console.log({ newSocket });
+
         newSocket.on('connect', () => {
             console.log('socket connected ');
         });

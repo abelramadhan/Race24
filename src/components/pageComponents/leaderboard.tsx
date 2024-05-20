@@ -1,27 +1,20 @@
 import { useGameContext } from '@/lib/context/gameContext';
+import { useGameState } from '@/lib/context/gameStateContext';
 import { useSocket } from '@/lib/context/socketContext';
-import { CardSet, gameStates } from '@/lib/context/types/gameTypes';
+import { gameStates } from '@/lib/context/types/gameTypes';
 import { Button, Typography } from '@material-tailwind/react';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import Card from '../gameComponents/Card';
-import CardGrid from '../gameComponents/CardGrid';
-import OperatorGrid from '../gameComponents/Operators';
-import { ArrowPathIcon } from '@heroicons/react/24/solid';
-import ScoreBoard from '../gameComponents/ScoreBoard';
+import { Dispatch, SetStateAction, useMemo } from 'react';
 
-interface LeaderBoardProps {
-    setGameState: Dispatch<SetStateAction<gameStates>>;
-}
+interface LeaderBoardProps {}
 
-export default function LeaderBoard({ setGameState }: LeaderBoardProps) {
+export default function LeaderBoard({}: LeaderBoardProps) {
+    const { setGameState } = useGameState();
     const { socket } = useSocket();
     const { roomObject } = useGameContext();
 
     const sortedUserList = useMemo(() => {
         return roomObject?.userList.sort((a, b) => b.score - a.score);
     }, [roomObject]);
-
-    console.log(roomObject?.userList);
 
     return (
         <div className='w-screen min-h-full max-w-md bg-white sm:rounded-lg shadow-md flex flex-col'>
@@ -90,7 +83,7 @@ export default function LeaderBoard({ setGameState }: LeaderBoardProps) {
                         })}
                 </div>
                 <div className='flex flex-col gap-2 p-10'>
-                    <Button onClick={() => setGameState('lobby')}>Kembali ke Lobby</Button>
+                    <Button onClick={() => setGameState(socket?.connected ? 'lobby' : 'home')}>Kembali ke Lobby</Button>
                     <Button
                         onClick={() => window.location.reload()}
                         variant='text'>
