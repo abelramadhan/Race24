@@ -25,7 +25,7 @@ export default function Home() {
     useEffect(() => {
         const init = localStorage.getItem('home-tutorial');
         if (!init) {
-            setIsTourOpen(true);
+            socket?.connected && setIsTourOpen(true);
             localStorage.setItem('home-tutorial', 'true');
         }
     }, []);

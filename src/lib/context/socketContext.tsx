@@ -3,6 +3,8 @@ import io, { Socket } from 'socket.io-client';
 import { User } from './types/user';
 import { ClientToServerEvents, ServerToClientEvents } from './types/socketTypes';
 
+const socketEnabled = Boolean(process.env.ENABLE_SOCKET);
+
 interface SocketContextProps {
     socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
 }
@@ -23,9 +25,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        // initSocketServer();
+        socketEnabled && initSocketServer();
 
-        const newSocket = io({ reconnection: false });
+        const newSocket = io({ reconnection: socketEnabled });
 
         console.log({ newSocket });
 
