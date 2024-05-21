@@ -10,6 +10,5 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const cardRepo = new CardRepo();
-  await cardRepo.init();
   res.status(200).json({ cards: cardRepo.draw() });
 }

@@ -5,26 +5,25 @@ function getRandomNumber(max: number): number {
   return Math.floor(Math.random() * (max + 1));
 }
 
+const socketEnabled = process.env.NEXT_PUBLIC_ENABLE_SOCKET === "true";
+
 export class CardRepo {
   private cards: CardSet[];
   constructor() {
-    this.cards = [];
-  }
-
-  init = async () => {
     try {
-      this.cards = (await (
-        await fetch("/data/cards.json")
-      ).json()) as number[][];
+      this.cards = readJSONFile("src/lib/data/cards.json");
     } catch (error) {
+      console.log("generating combinations");
       const combinations = generateCombinations(
         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         4
       );
-      writeJSONFile("public/data/cards.json", combinations);
+      if (socketEnabled) {
+        writeJSONFile("src/lib/data/cards.json", combinations);
+      }
       this.cards = combinations;
     }
-  };
+  }
 
   draw = () => {
     const roundCards = [];

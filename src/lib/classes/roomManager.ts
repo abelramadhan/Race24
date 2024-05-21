@@ -16,17 +16,14 @@ class Room {
 
   constructor(roomID: string) {
     this.roomID = roomID;
-    this.cards = [];
-    cardsRepo.init().then(() => {
-      this.cards = cardsRepo.draw();
-    });
+    this.cards = cardsRepo.draw();
   }
 
   getRoomID = () => {
     return this.roomID;
   };
 
-  drawCards = async () => {
+  drawCards = () => {
     this.cards = cardsRepo.draw();
   };
 
